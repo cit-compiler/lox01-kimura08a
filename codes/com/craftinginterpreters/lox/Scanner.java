@@ -177,19 +177,31 @@ private void number() {
   private void string() {
     while (peek() != '"' && !isAtEnd()) {
       if (peek() == '\n') line++;
-      advance();
+      if (peek() == '\\' && peekNext() == '"') {
+        advance(); // Skip the backslash
+        advance(); // Skip the escaped quote
+      } else {
+        advance();
+      }
     }
-
+  
     if (isAtEnd()) {
       Lox.error(line, "Unterminated string.");
       return;
     }
-
+  
     // The closing ".
     advance();
-
+  
     // Trim the surrounding quotes.
     String value = source.substring(start + 1, current - 1);
+  
+    // Handle escaped quotes within the string
+    value = value.replace("\\\"", "\"");
+  
+    // Debug output
+    System.out.println("Processed string: " + value);
+  
     addToken(STRING, value);
   }
 
