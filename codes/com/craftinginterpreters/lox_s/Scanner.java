@@ -175,42 +175,31 @@ private void number() {
   }
 
   private void string() {
+    StringBuilder value = new StringBuilder();
     while (peek() != '"' && !isAtEnd()) {
-      if (peek() == '\n') line++;
-      if (peek() == '\\' && peekNext() == '"') {
-        advance(); // Skip the backslash
-        advance(); // Skip the escaped quote
-      } else {
-        advance();
-      }
+        if (peek() == '\n') line++;
+        if (peek() == '\\' && peekNext() == '"') {
+            advance(); // Skip the backslash
+            value.append(advance()); // Add the escaped quote
+        } else {
+            value.append(advance());
+        }
     }
-  
+
     if (isAtEnd()) {
-      Lox.error(line, "Unterminated string.");
-      return;
+        Lox.error(line, "Unterminated string.");
+        return;
     }
-  
+
     // The closing ".
     advance();
-  
+
     // Trim the surrounding quotes.
-    String value = source.substring(start + 1, current - 1);
-  
-    // Handle escaped quotes within the string
-    value = value.replace("\\\"", "\"");
-  
+    String finalValue = value.toString();
+
     // Debug output
-    System.out.println("Processed string: " + value);
-  
-    addToken(STRING, value);
-  }
+    System.out.println("Processed string: " + finalValue);
 
-  private boolean isDigit(char c) {
-    return c >= '0' && c <= '9';
-  } 
-
-  private char peekNext() {
-    if (current + 1 >= source.length()) return '\0';
-    return source.charAt(current + 1);
-  } 
+    addToken(STRING, finalValue);
+}
 }
